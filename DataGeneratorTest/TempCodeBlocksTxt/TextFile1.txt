@@ -1,0 +1,54 @@
+﻿ //static void Main()
+        //{
+
+        //    Init();
+        //    // Create a log and any necessary directories
+        //    //Log log = GetLog();
+
+        //    //log.WriteStart("MainDataGeneratorTest::Main()");
+
+        //    //IDataGeneratorPolymorphTest.RunAllTests(log);
+        //    //CosineGeneratorTest.RunAllTests(log, new TimeSpan(0, 0, 0, 30, 0));                        
+
+        //    ////DataGeneratorThreadTest(new TimeSpan(0, 5, 0));
+
+        //    //log.WriteEnd("MainDataGeneratorTest::Main()");            
+
+        //    //// flush, close and release all resources associated with log's StreamWriter
+        //    //Cleanup(log);
+
+
+
+        //}  // END static void Main() 
+
+        
+
+        //private static Log GetLog()
+        //{
+        //    string pathToMyDocuments = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+        //    string pathtoLogFiles = @"\dev\vs2010\c#\DataGenerator\DebugLog\";
+        //    string fileName = @"MainDataGeneratorTest_" + System.DateTime.Now.ToFileTime().ToString() + ".txt";
+        //    FileInfo fi = new FileInfo(pathToMyDocuments + pathtoLogFiles + fileName);
+
+        //    // Create log directory if it does not exist
+        //    if (!Directory.Exists(pathToMyDocuments + pathtoLogFiles))
+        //        Directory.CreateDirectory(pathToMyDocuments + pathtoLogFiles);
+
+        //    // get a stream writer to write to log file
+        //    StreamWriter sw = new StreamWriter(fi.FullName);
+
+        //    // get a Log for logging all debug messages to sw
+        //    Log log = new Log(sw);
+
+        //    return log;
+        //} // END private static Log GetLog()
+
+        
+
+        private static void Cleanup(Log log)
+        {
+            log.sw.Flush();
+            log.sw.Close();
+            log.sw.Dispose();
+
+        } // END private static void Cleanup(Log log)     

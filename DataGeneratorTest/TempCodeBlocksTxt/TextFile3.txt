@@ -1,0 +1,239 @@
+﻿using System;
+using System.Diagnostics;
+using System.Globalization;
+using System.Collections;
+using System.Data;
+using System.Data.SqlClient;
+
+using DataGenerator;
+
+namespace DataGeneratorTest
+{
+    class CosineGeneratorWorker
+    {
+        private CosineGenerator _cosGen;
+        private TimeSpan _ts;
+        
+        private volatile bool _continueGeneration;
+
+        private static object _lock = new object();
+        
+        private static DataTable dtBuffer = new DataTable("CosineTest2");
+        
+        private static int _workerCount = 0;
+
+        static string connStr = @"Data Source=SHEPARD\SQLEXP_2008_TEST;Initial Catalog=tempdb;Integrated Security=True";
+
+        private static SqlBulkCopy sqlBulkCopyBuffer_1 = new SqlBulkCopy(connStr);
+
+        private static bool bufferSetup = false;
+
+        
+        
+
+        public CosineGeneratorWorker()
+        {
+            WorkerCount++;
+            SetupDataTableBuffer();
+
+            _cosGen = new CosineGenerator();
+            _ts = new TimeSpan(0, 0, 10);
+            ContinueGeneration = true;
+            
+            
+        } // END public CosineGeneratorThread()
+
+        public CosineGeneratorWorker(CosineGenerator cosGen, TimeSpan interval)
+        {
+            WorkerCount++;
+            SetupDataTableBuffer();        
+
+            _cosGen = cosGen;
+            _ts = interval;
+            ContinueGeneration = true;
+        } // END public CosineGeneratorWorker(CosineGenerator cosGen, TimeSpan interval)
+
+
+        private static void SetupDataTableBuffer()
+        {
+            if (!bufferSetup) 
+            {
+                // setup columns            
+                dtBuffer.Columns.Add(new DataColumn("RowId", typeof(int)));
+                dtBuffer.Columns.Add(new DataColumn("InsertionTime", typeof(DateTime)));
+                dtBuffer.Columns.Add(new DataColumn("StartingOrSeedAngle", typeof(double)));
+                dtBuffer.Columns.Add(new DataColumn("AngleRotation", typeof(double)));
+                dtBuffer.Columns.Add(new DataColumn("CurrentAngle", typeof(double)));
+                dtBuffer.Columns.Add(new DataColumn("CosineOfCurrentAngle", typeof(double)));
+                dtBuffer.Columns.Add(new DataColumn("TimeOfCosineOfCurrentAngle", typeof(DateTime)));
+                dtBuffer.Columns.Add(new DataColumn("IntervalAtWhichCosineIsTaken", typeof(long)));
+
+                // make sure that columns are setup only once
+                bufferSetup = true;
+
+            } // END if (!bufferSetup) 
+            
+        } // public static void SetupDataTableCosineTest()
+
+
+        public void Generate()
+        {
+            int lineNum = 1;
+            object[] dtBufferRow = new object[8];
+
+            lock (_lock)
+            {
+                Debug.WriteLine("STARTING:  {0}{1}", ToString(), Environment.NewLine, null);
+                Debug.WriteLine(Environment.NewLine);
+            } // END lock(_lock)
+
+            // block each starting thread for 10 sec to sync Debug output            
+            System.Threading.Thread.Sleep(new TimeSpan(0, 0, 10));
+
+            while (true)
+            {
+                if (ContinueGeneration == false)
+                    break;
+                
+                lock (_lock)
+                {    
+                    // fill dtBufferRow
+                    dtBufferRow[0] = null;
+                    dtBufferRow[1] = null;
+                    dtBufferRow[2] = _cosGen.StartingAngle;
+                    dtBufferRow[3] = _cosGen.AngleRotation;
+                    dtBufferRow[4] = _cosGen.CurrentAngle;
+                    dtBufferRow[5] = _cosGen.Next();
+                    dtBufferRow[6] = DateTime.Now;
+                    dtBufferRow[7] = _ts.Ticks;
+
+                    // add row to dtBuffer
+                    dtBuffer.Rows.Add(dtBufferRow);
+
+                    //Debug output
+                    Debug.WriteLine("{0}. Managed Thread ID: {1}", lineNum++, System.Threading.Thread.CurrentThread.ManagedThreadId, null);
+                    Debug.WriteLine("Time Cosie of CurrentAngle was taken: {0}", ((DateTime)dtBufferRow[6]).ToString("MM/dd/yyyy hh:mm:ss.fffffff tt", CultureInfo.CurrentUICulture), null);
+                    Debug.WriteLine("Starting Angle: {0}", (double)dtBufferRow[2], null);
+                    Debug.WriteLine("Angle Rotation: {0}", (double)dtBufferRow[3], null);
+                    Debug.WriteLine("Current Angle: {0}", (double)dtBufferRow[4], null);
+                    Debug.WriteLine("Cosine of Current Angle: {0}", (double)dtBufferRow[5], null);
+                    Debug.WriteLine(Environment.NewLine);
+
+                    if (dtBuffer.Rows.Count >= 60)
+                        PushToDB();
+
+                    //Debug.WriteLine("{0}. Managed Thread ID: {1}", lineNum++, System.Threading.Thread.CurrentThread.ManagedThreadId, null);
+                    //Debug.WriteLine("Current Time: {0}", System.DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fffffff tt", CultureInfo.CurrentUICulture), null);
+                    //Debug.WriteLine("Starting Angle: {0}", _cosGen.StartingAngle, null);
+                    //Debug.WriteLine("Angle Rotation: {0}", _cosGen.AngleRotation, null);
+                    //Debug.WriteLine("Current Angle: {0}", _cosGen.CurrentAngle, null);
+                    //Debug.WriteLine("Cosine of Current Angle: {0}", _cosGen.Next(), null);
+                    //Debug.WriteLine(Environment.NewLine);
+
+                } // END lock(_lock)
+
+                System.Threading.Thread.Sleep(_ts);
+
+            } // END while(true)
+
+            lock (_lock)
+            {
+                Debug.WriteLine("ENDING:  {0}{1}", ToString(), Environment.NewLine, null);
+                Debug.WriteLine(Environment.NewLine);
+            } // END lock(_lock)
+
+        } // END public void Generate()
+
+        public void PushToDB()
+        {
+            SqlConnection conn = new SqlConnection(connStr);
+            sqlBulkCopyBuffer_1.DestinationTableName = "CosineTest2";
+
+           
+
+                try
+                {
+                    conn.Open();
+
+                    Debug.WriteLine(Environment.NewLine);
+                    Debug.WriteLine("Connection opened.");
+                    Debug.WriteLine(conn.ConnectionString);
+                    Debug.WriteLine(conn.Database);
+                    Debug.WriteLine(conn.DataSource);
+                    Debug.WriteLine(conn.ServerVersion);
+                    Debug.WriteLine(conn.State);
+                    Debug.WriteLine(conn.WorkstationId);
+
+                    Debug.WriteLine(Environment.NewLine);
+                    Debug.WriteLine(DebugHelper.separator);
+                    Debug.WriteLine(Environment.NewLine);
+
+                    Debug.WriteLine("Performing bulk copy to DB");
+                    
+                    sqlBulkCopyBuffer_1.WriteToServer(dtBuffer);
+
+                    Debug.WriteLine("Bulk copy to DB complete");
+
+                    
+
+                }  // END try
+
+                catch (SqlException ex)
+                {
+                    Console.WriteLine("Error: " + ex.Message + ex.StackTrace);
+                } // END catch (SqlException ex)
+
+                finally
+                {
+                    Debug.WriteLine("Closing connection.");
+                    conn.Close();
+                    Debug.WriteLine("Connection closed.");
+                    Debug.WriteLine("Clearing buffer.");
+                    dtBuffer.Clear();
+                    Debug.WriteLine("Buffer cleared.");
+
+                }  // END finally
+            
+            
+        } // END public static void PushToDB()
+
+        private TimeSpan Interval
+        {
+            get { return _ts;}
+            set { _ts = value; }
+        }
+
+        private CosineGenerator Generator
+        {
+            get { return _cosGen; }
+            set { _cosGen = value; }
+        }
+
+        
+
+        public bool ContinueGeneration
+        {
+
+            get { return _continueGeneration; }
+            set { _continueGeneration = value; }
+
+        } // public bool ContinueGeneration
+
+        public static int WorkerCount
+        {
+            get { return _workerCount; }
+            private set {_workerCount = value;}
+        } // END public static int WorkerCount
+
+        public override string ToString()
+        {
+            return "Thread ID = " + System.Threading.Thread.CurrentThread.ManagedThreadId.ToString() + Environment.NewLine +
+                   _cosGen.ToString() + Environment.NewLine +
+                   "TimeSpan = " + _ts.Duration().TotalSeconds.ToString() + "sec" + Environment.NewLine +
+                   //"Worker Method: public void Generate()" + Environment.NewLine +
+                   "HashCode = " + GetHashCode().ToString();
+        } // END public static int WorkerCount
+
+    } // END class CosineGeneratorThread
+
+} // END namespace DataGeneratorTest

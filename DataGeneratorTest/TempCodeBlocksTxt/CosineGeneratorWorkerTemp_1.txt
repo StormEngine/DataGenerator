@@ -1,0 +1,65 @@
+﻿using System;
+using DataGenerator;
+
+namespace DataGeneratorTest
+{
+    class CosineGeneratorWorker
+    {
+        private CosineGenerator cosGen;
+        private TimeSpan ts;
+        private volatile bool _continueGeneration;
+        
+
+        public CosineGeneratorWorker()
+        {
+            cosGen = new CosineGenerator();
+            ts = new TimeSpan(0, 0, 10);
+            ContinueGeneration = true;
+        } // END public CosineGeneratorThread()
+
+        public void Generate()
+        {
+            int lineNum = 1;
+
+            System.Threading.Thread.BeginCriticalRegion();
+
+            Console.WriteLine("Executing Generate()--the Critial Part of:");
+            Console.WriteLine("{0}", ToString());
+
+            while (ContinueGeneration)
+            {
+                Console.Write("{0}. ", lineNum++);
+                Console.Write("Current Time: {0}", DateTime.Now);
+                Console.Write("Starting Angle: {0}   ", cosGen.StartingAngle);
+                Console.Write("Angle Step: {0}   ", cosGen.AngleRotation);
+                Console.Write("Current Angle {0}   ", cosGen.CurrentAngle);
+                Console.Write("Cosine of Current Angle: {0}", cosGen.Next());
+                Console.WriteLine();
+
+                System.Threading.Thread.Sleep(ts);
+            }
+
+            System.Threading.Thread.EndCriticalRegion();
+
+        } // END public void Generate()
+
+        public bool ContinueGeneration
+        {
+
+            get { return _continueGeneration; }
+            set { _continueGeneration = value; }
+
+        } // public bool ContinueGeneration
+
+        public override string ToString()
+        {
+            return "Thread ID = " + System.Threading.Thread.CurrentThread.ManagedThreadId.ToString() + "\n" +
+                   cosGen.ToString() + "\n" +
+                   "TimeSpan= " + ts.Duration().TotalSeconds.ToString() + "\n" +
+                   "Worker Method: public void Generate()" + "\n" +
+                   "HashCode = " + GetHashCode().ToString();
+        }
+
+    } // END class CosineGeneratorThread
+
+} // END namespace DataGeneratorTest

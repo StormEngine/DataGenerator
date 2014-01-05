@@ -1,0 +1,100 @@
+﻿using System;
+using System.IO;
+using System.Globalization;
+
+/// <summary>
+/// Contains objects for testing and debugging IDataGenerator and progeny.
+/// </summary>
+namespace DataGeneratorTest
+{
+
+    /// <summary>
+    /// A simple class that writes debug messages to a file and to stdout
+    /// Needs improvement!!!!
+    /// </summary>
+    public class Log
+    {
+        #region PRIVATE FIELDS
+        private StreamWriter _sw;  // allows for file I/O
+        #endregion
+
+        #region PUBLIC CONSTANTS
+        public static readonly string separator = new string('=', 90);  // a string for separating text I/O in stdout and file
+        #endregion
+
+        #region PUBLIC CONSTRUCTORS
+        public Log(StreamWriter sw)
+        {
+            this.sw = sw;
+        }  // END public Log(StreamWriter sw)
+        #endregion
+
+        #region PUBLIC PASSTHROUGH METHODS
+        
+        public void Write(string msg)
+        {
+            
+            Console.Write(msg);
+            sw.Write(msg);
+        }
+
+        public void WriteLine(string msg)
+        {
+            
+            Console.WriteLine(msg);
+            sw.WriteLine(msg);
+        }
+
+        public void WriteLine()
+        {
+            Console.WriteLine();
+            sw.WriteLine();
+        }
+
+        public void WriteSeparator()
+        {
+            Console.WriteLine(separator);
+            sw.WriteLine(separator);
+        }
+
+        public void WriteStart(string msgStart)
+        {
+            WriteLine();
+            WriteSeparator();
+            Time();
+            WriteLine("START ==> "+ msgStart);            
+            WriteLine();
+        }
+
+        public void WriteEnd(string msgEnd)
+        {
+            WriteLine();
+            Time();
+            WriteLine("END ==> " + msgEnd);            
+            WriteSeparator();
+            WriteLine();
+        }
+
+        public void Time()
+        {
+            Console.Write(System.DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fffff tt  ==>  ", CultureInfo.CurrentUICulture));            
+            Write(System.DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fffff tt  ==>  ", CultureInfo.CurrentUICulture));
+        }
+
+        public void TimeLine()
+        {
+            Console.WriteLine(System.DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fffff tt", CultureInfo.CurrentUICulture));
+            WriteLine(System.DateTime.Now.ToString("MM/dd/yyyy hh:mm:ss.fffff tt", CultureInfo.CurrentUICulture));
+        }
+        #endregion
+
+        #region PROPERTIES
+        public StreamWriter sw
+        {
+            get { return _sw; }
+            private set { _sw = value; }
+        } // END public StreamWriter sw
+        #endregion
+
+    } // END public class Shared
+} // END namespace DataGeneratorTest

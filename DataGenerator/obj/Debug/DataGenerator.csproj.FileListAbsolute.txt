@@ -1,0 +1,4 @@
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGenerator\bin\Debug\DataGenerator.dll
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGenerator\bin\Debug\DataGenerator.pdb
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGenerator\obj\Debug\DataGenerator.dll
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGenerator\obj\Debug\DataGenerator.pdb

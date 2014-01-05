@@ -1,0 +1,7 @@
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGeneratorTest\bin\Debug\DataGeneratorTest.exe
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGeneratorTest\bin\Debug\DataGeneratorTest.pdb
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGeneratorTest\bin\Debug\DataGenerator.dll
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGeneratorTest\bin\Debug\DataGenerator.pdb
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGeneratorTest\obj\x86\Debug\DataGeneratorTest.csprojResolveAssemblyReference.cache
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGeneratorTest\obj\x86\Debug\DataGeneratorTest.exe
+D:\Users\kostya\Documents\dev\vs2010\c#\DataGenerator\DataGeneratorTest\obj\x86\Debug\DataGeneratorTest.pdb
